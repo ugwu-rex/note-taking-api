@@ -2,6 +2,13 @@ const express = require("express");
 const Note = require("../models/Note");
 
 const router = express.Router();
+const NoteController = require("../controllers/note.controller");
+
+// GET notes by category
+router.get("/categories/:categoryId", NoteController.getNotesByCategory);
+
+// UPDATE a note
+router.put("/:id", NoteController.updateNote);
 
 // GET /api/notes - list all notes
 router.get("/", async (req: any, res: any) => {

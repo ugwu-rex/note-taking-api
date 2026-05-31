@@ -1,13 +1,16 @@
 # Simple Note-Taking API (TypeScript & MongoDB)
 
-A lightweight, fully typed RESTful API for managing notes, built using Node.js, Express, TypeScript, and MongoDB (Mongoose).
+A lightweight, fully typed RESTful API for managing notes and organizing them into categories, built using Node.js, Express, TypeScript, and MongoDB (Mongoose).
 
 ## Features
 
-- **TypeScript Native**: Full type safety across models, requests, routes, and custom error handlers.
+- **TypeScript Native**: Full type safety across controllers, services, models, requests, routes, and custom error handlers.
+- **Category Organization**: Structured categories linked directly to notes with proper relational validation.
+- **Generic Format Validation**: Custom request body validation middleware utilizing TypeScript Generics.
+- **Typed Logging**: Custom middleware to log incoming API requests safely.
+- **Service-Controller Pattern**: Clean architecture separating routing logic, request handling, and business logic.
 - **MongoDB Integration**: Robust data persistence using Mongoose schemas.
 - **Custom Error Handling**: Structured, typed custom error classes matched with a centralized error middleware.
-- **RESTful Architecture**: Clean separation of routes, models, and controllers.
 
 ---
 
@@ -25,23 +28,29 @@ A lightweight, fully typed RESTful API for managing notes, built using Node.js, 
 ```text
 ├── node_modules/
 ├── src/
+│   ├── controllers/
+│   │   └── note.controller.ts # Request/response orchestration logic
 │   ├── errors/
-│   │   └── CustomErrors.ts  # Custom typed error classes
+│   │   └── CustomErrors.ts    # Custom typed error classes
 │   ├── interfaces/
-│   │   └── note.ts          # TypeScript interfaces for data models
+│   │   └── note.ts            # TypeScript interfaces for data models
 │   ├── middleware/
-│   │   └── errorHandler.ts  # Express error handling middleware
+│   │   ├── errorHandler.ts    # Centralized error handler
+│   │   ├── logger.ts          # Typed API request logging middleware
+│   │   └── validateNote.ts    # Generic validation middleware using TypeScript generics
 │   ├── models/
-│   │   └── Note.ts          # Mongoose schema definitions
+│   │   ├── Category.ts        # Mongoose schema for Categories
+│   │   └── Note.ts            # Mongoose schema for Notes
 │   ├── routes/
-│   │   └── noteRoutes.ts    # REST endpoints configuration
-│   └── server.ts            # Application entry point & server setup
-├── .env                     # Environment variables
-├── .gitignore               # Git ignored files
+│   │   └── noteRoutes.ts      # Extended REST endpoints configuration
+│   ├── services/              # Business logic & database operations layer
+│   └── server.ts              # Application entry point & server setup
+├── .env                       # Environment variables
+├── .gitignore                 # Git ignored files
 ├── package-lock.json
-├── package.json             # Scripts and dependencies
-├── README.md                # Project documentation
-└── tsconfig.json            # TypeScript configuration
+├── package.json               # Scripts and dependencies
+├── README.md                  # Project documentation
+└── tsconfig.json              # TypeScript configuration
 ```
 
 ---
@@ -54,8 +63,9 @@ Ensure you have the following installed:
 - [MongoDB](https://mongodb.com) (Local instance or MongoDB Atlas Connection URI)
 
 ### 2. Installation
-Clone the repository and install the dependencies:
+Clone the repository, switch to your new feature branch, and install the dependencies:
 ```bash
+git checkout feature/persistence-and-categories
 npm install
 ```
 
@@ -75,24 +85,27 @@ The server will boot up and listen for requests at `http://localhost:5000`.
 
 ---
 
-## 🛣️ API Endpoints
+## API Endpoints
 
 
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
 | **GET** | `/api/notes` | Fetch all notes from the database |
 | **GET** | `/api/notes/:id` | Fetch a single note by its unique ID |
-| **POST** | `/api/notes` | Create and save a new note |
+| **GET** | `/api/notes/categories/:categoryId` | Fetch all notes belonging to a specific category ID |
+| **POST** | `/api/notes` | Create and save a new note with an assigned category |
+| **PUT** | `/api/notes/:id` | Update an existing note by ID (Validated using generics) |
 | **DELETE** | `/api/notes/:id` | Delete an existing note by ID |
 
 ### Sample JSON Payloads
 
-#### Create a Note (`POST /api/notes`)
+#### Create a Note with Category (`POST /api/notes`)
 **Request Body:**
 ```json
 {
   "title": "Study TypeScript",
-  "content": "Review custom error classes and Express middleware implementations."
+  "content": "Review custom error classes and Express middleware implementations.",
+  "categoryId": "658a2b3c4d5e6f7a8b9c0d11"
 }
 ```
 
@@ -102,8 +115,21 @@ The server will boot up and listen for requests at `http://localhost:5000`.
   "_id": "647f1a2b3c4d5e6f7a8b9c0d",
   "title": "Study TypeScript",
   "content": "Review custom error classes and Express middleware implementations.",
+  "category": {
+    "_id": "658a2b3c4d5e6f7a8b9c0d11",
+    "name": "Education"
+  },
   "createdAt": "2026-05-31T17:00:00.000Z",
   "updatedAt": "2026-05-31T17:00:00.000Z"
+}
+```
+
+#### Update a Note (`PUT /api/notes/:id`)
+**Request Body:**
+```json
+{
+  "title": "Study TypeScript & Generics",
+  "content": "Deep dive into TypeScript generic middleware design patterns."
 }
 ```
 
@@ -111,9 +137,7 @@ The server will boot up and listen for requests at `http://localhost:5000`.
 
 ## 🧪 Testing with Postman
 
-1. Open the **Postman** desktop application or web dashboard.
-2. Click **New** -> **Collection** and name it `Note-Taking API`.
-3. Add 4 separate requests matching the methods and routes in the endpoints table above.
-4. For the `POST` request, go to the **Body** tab, select **raw**, choose **JSON** format, and paste the request body sample.
-5. Send requests to `http://localhost:5000/api/notes`.
-6. Provide a valid 24-character hex MongoDB ID string inside the URL parameter path to test the `GET /api/notes/:id` and `DELETE /api/notes/:id` targets.
+1. Open **Postman** and select your `Note-Taking API` collection.
+2. Add new request items for **GET (by Category)** and **PUT (Update)** matching the endpoints table.
+3. For the `PUT` request, place a valid 24-character hexadecimal MongoDB ID string inside the URL, pass the updated fields into the **JSON Body** tab, and monitor the response.
+4. Open your terminal window to observe the **typed logging middleware** printing structural telemetry metadata for every request handled.
