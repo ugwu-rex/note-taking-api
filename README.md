@@ -75,7 +75,7 @@ The server will boot up and listen for requests at `http://localhost:5000`.
 
 ---
 
-## 🛣️ API Endpoints
+## API Endpoints
 
 
 | Method | Endpoint | Description |
@@ -109,7 +109,7 @@ The server will boot up and listen for requests at `http://localhost:5000`.
 
 ---
 
-## 🧪 Testing with Postman
+## Testing with Postman
 
 1. Open the **Postman** desktop application or web dashboard.
 2. Click **New** -> **Collection** and name it `Note-Taking API`.
